@@ -23,6 +23,9 @@ const MatchManager = () => {
     if (match.stage === 'Grupo') {
       return `Grupo R${match.round}: ${home} vs ${away}`;
     }
+    if (match.knockoutFormat === 'single') {
+      return `${match.stage} Partido unico: ${home} vs ${away}`;
+    }
     const legLabel = match.leg === 1 ? 'Ida' : 'Vuelta';
     return `${match.stage} ${legLabel}: ${home} vs ${away}`;
   };

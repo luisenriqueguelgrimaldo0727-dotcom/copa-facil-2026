@@ -10,17 +10,23 @@ const KnockoutStage = ({ readOnly = false }) => {
   const settings = useTournamentStore((state) => state.settings || {});
   const getTeamLogo = (teamId) => teams.find((team) => team.id === teamId)?.logo || '';
   const generateKnockoutBracket = useTournamentStore((state) => state.generateKnockoutBracket);
+  const updateSettings = useTournamentStore((state) => state.updateSettings);
 
   const getTeamName = (teamId) => teams.find((team) => team.id === teamId)?.name || teamId;
   const qualified = standings.slice(0, 8);
   const hasKnockout = knockoutMatches.length > 0;
   const isLongFormat = settings.tournamentFormat === 'long';
+  const knockoutFormat = settings.knockoutFormat || (settings.tournamentFormat === 'worldCup' ? 'single' : 'twoLeg');
 
   const getStageLabel = (match) => {
-    if (match.stage === 'Final') {
-      return `Final - ${match.leg === 1 ? 'Ida' : 'Vuelta'}`;
+    const matchFormat = match.knockoutFormat || knockoutFormat;
+    if (matchFormat === 'single') {
+      return match.stage === 'Final' ? 'Final - Partido unico' : `${match.stage} - Partido unico`;
     }
     const legLabel = match.leg === 1 ? 'Ida' : 'Vuelta';
+    if (match.stage === 'Final') {
+      return `Final - ${legLabel}`;
+    }
     return `${match.stage} ${legLabel}`;
   };
 
@@ -49,7 +55,7 @@ const KnockoutStage = ({ readOnly = false }) => {
       <div className="mb-4">
         <h2 className="text-2xl font-semibold text-white">Fase Eliminatoria</h2>
         <p className="text-sm text-slate-400">
-          {isLongFormat ? 'Este torneo se define por tabla general, sin fase eliminatoria.' : 'Gestiona los cruces de cuartos, semifinales y final con partidos de ida y vuelta.'}
+          {isLongFormat ? 'Este torneo se define por tabla general, sin fase eliminatoria.' : 'Gestiona los cruces de eliminatoria con partido unico o ida y vuelta.'}
         </p>
       </div>
 
@@ -81,6 +87,44 @@ const KnockoutStage = ({ readOnly = false }) => {
           </div>
         )}
       </div>
+      )}
+
+      {!readOnly && !isLongFormat && (
+        <div className="mb-5 rounded-3xl border border-slate-800 bg-slate-900/80 p-5 shadow-inner shadow-slate-950/20">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Formato de eliminatoria</p>
+              <p className="mt-1 text-sm text-slate-400">
+                Elige antes de generar el cuadro. En Mundial normalmente se juega a partido unico.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-2 rounded-2xl bg-slate-950 p-1 ring-1 ring-slate-800 sm:min-w-80">
+              {[
+                { id: 'single', label: 'Partido unico' },
+                { id: 'twoLeg', label: 'Ida y vuelta' },
+              ].map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  onClick={() => updateSettings({ knockoutFormat: option.id })}
+                  disabled={hasKnockout}
+                  className={`rounded-xl px-3 py-2 text-xs font-black transition ${
+                    knockoutFormat === option.id
+                      ? 'bg-sky-500 text-slate-950'
+                      : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                  } disabled:cursor-not-allowed disabled:opacity-70`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          {hasKnockout && (
+            <p className="mt-3 text-xs text-amber-300">
+              El formato queda bloqueado cuando el calendario de eliminatorias ya fue generado.
+            </p>
+          )}
+        </div>
       )}
 
       {!readOnly && !isLongFormat && (

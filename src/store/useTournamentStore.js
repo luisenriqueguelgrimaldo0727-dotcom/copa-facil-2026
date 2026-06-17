@@ -85,6 +85,7 @@ const initialTeams = [
 const getSettings = (settings = {}) => ({
   ...DEFAULT_SETTINGS,
   ...settings,
+  knockoutFormat: settings.knockoutFormat || (settings.tournamentFormat === 'worldCup' ? 'single' : 'twoLeg'),
 });
 
 const createRoundRobinMatches = (teams, options = {}) => {
@@ -388,87 +389,19 @@ const getTwoLegWinner = (leg1, leg2) => {
   return teamB; // fallback to the higher ranked team in our setup
 };
 
-const generateSemifinals = (quarterWinners) => {
-  if (quarterWinners.length !== 4) return [];
+const getSingleMatchWinner = (match) => {
+  if (!match || match.homeGoals === null || match.awayGoals === null) return null;
+  if (match.homeGoals > match.awayGoals) return match.homeId;
+  if (match.awayGoals > match.homeGoals) return match.awayId;
 
-  // Re-seeding style: Sort semifinalists by their original seed (1 is best, 8 is worst)
-  const sortedWinners = [...quarterWinners].sort((a, b) => a.seed - b.seed);
-  const [s1, s2, s3, s4] = sortedWinners; // s1 is best seed, s4 is worst seed
+  const seedHome = match.homeSeed;
+  const seedAway = match.awaySeed;
+  if (seedHome !== undefined && seedAway !== undefined) {
+    if (seedHome < seedAway) return match.homeId;
+    if (seedAway < seedHome) return match.awayId;
+  }
 
-  const createMatchPair = (first, second, pairId) => {
-    // first is better ranked (lower seed number), second is lower ranked (higher seed number)
-    // Leg 1: Lower ranked team (second) plays at home
-    // Leg 2: Higher ranked team (first) plays at home, closing at home
-    return [
-      {
-        id: `${pairId}-1`,
-        homeId: second.id,
-        awayId: first.id,
-        homeSeed: second.seed,
-        awaySeed: first.seed,
-        homeGoals: null,
-        awayGoals: null,
-        stage: 'Semifinal',
-        leg: 1,
-        pair: pairId,
-      },
-      {
-        id: `${pairId}-2`,
-        homeId: first.id,
-        awayId: second.id,
-        homeSeed: first.seed,
-        awaySeed: second.seed,
-        homeGoals: null,
-        awayGoals: null,
-        stage: 'Semifinal',
-        leg: 2,
-        pair: pairId,
-      },
-    ];
-  };
-
-  // 1st vs 4th, 2nd vs 3rd
-  return [
-    ...createMatchPair(s1, s4, 'sf1'),
-    ...createMatchPair(s2, s3, 'sf2'),
-  ];
-};
-
-const generateFinal = (semifinalWinners) => {
-  if (semifinalWinners.length !== 2) return [];
-
-  // Sort by seed: s1 is best ranked (lower seed), s2 is lower ranked (higher seed)
-  const sortedWinners = [...semifinalWinners].sort((a, b) => a.seed - b.seed);
-  const [s1, s2] = sortedWinners;
-
-  // Leg 1: Lower ranked (s2) plays at home
-  // Leg 2: Higher ranked (s1) plays at home, closing the final at home
-  return [
-    {
-      id: 'f-1',
-      homeId: s2.id,
-      awayId: s1.id,
-      homeSeed: s2.seed,
-      awaySeed: s1.seed,
-      homeGoals: null,
-      awayGoals: null,
-      stage: 'Final',
-      leg: 1,
-      pair: 'f',
-    },
-    {
-      id: 'f-2',
-      homeId: s1.id,
-      awayId: s2.id,
-      homeSeed: s1.seed,
-      awaySeed: s2.seed,
-      homeGoals: null,
-      awayGoals: null,
-      stage: 'Final',
-      leg: 2,
-      pair: 'f',
-    },
-  ];
+  return match.homeId;
 };
 
 const knockoutStageOrder = ['Dieciseisavos', 'Octavos', 'Cuartos', 'Semifinal', 'Final'];
@@ -495,7 +428,7 @@ const sortQualifiedTeams = (teams) =>
     return a.name.localeCompare(b.name);
   });
 
-const createTwoLegRound = (qualifiedTeams, stage) => {
+const createKnockoutRound = (qualifiedTeams, stage, format = 'twoLeg') => {
   const sortedTeams = [...qualifiedTeams].sort((a, b) => a.seed - b.seed);
   const prefix = stage.toLowerCase().slice(0, 3);
   const matches = [];
@@ -504,6 +437,23 @@ const createTwoLegRound = (qualifiedTeams, stage) => {
     const higherSeed = sortedTeams[index];
     const lowerSeed = sortedTeams[sortedTeams.length - 1 - index];
     const pair = `${prefix}${index + 1}`;
+
+    if (format === 'single') {
+      matches.push({
+        id: `${pair}-1`,
+        homeId: higherSeed.id,
+        awayId: lowerSeed.id,
+        homeSeed: higherSeed.seed,
+        awaySeed: lowerSeed.seed,
+        homeGoals: null,
+        awayGoals: null,
+        stage,
+        leg: 1,
+        pair,
+        knockoutFormat: 'single',
+      });
+      continue;
+    }
 
     matches.push(
       {
@@ -517,6 +467,7 @@ const createTwoLegRound = (qualifiedTeams, stage) => {
         stage,
         leg: 1,
         pair,
+        knockoutFormat: 'twoLeg',
       },
       {
         id: `${pair}-2`,
@@ -529,6 +480,7 @@ const createTwoLegRound = (qualifiedTeams, stage) => {
         stage,
         leg: 2,
         pair,
+        knockoutFormat: 'twoLeg',
       }
     );
   }
@@ -536,8 +488,9 @@ const createTwoLegRound = (qualifiedTeams, stage) => {
   return matches;
 };
 
-const advanceKnockoutStages = (knockoutMatches) => {
+const advanceKnockoutStages = (knockoutMatches, settings = DEFAULT_SETTINGS) => {
   const currentMatches = [...knockoutMatches];
+  const format = getSettings(settings).knockoutFormat;
 
   const buildWinners = (matches) => {
     const pairs = {};
@@ -557,7 +510,8 @@ const advanceKnockoutStages = (knockoutMatches) => {
       const legs = pairs[pairId] || [];
       const leg1 = legs.find((match) => match.leg === 1);
       const leg2 = legs.find((match) => match.leg === 2);
-      const winnerId = getTwoLegWinner(leg1, leg2);
+      const pairFormat = leg1?.knockoutFormat || format;
+      const winnerId = pairFormat === 'single' ? getSingleMatchWinner(leg1) : getTwoLegWinner(leg1, leg2);
       if (!winnerId) return null;
       const winnerSeed =
         leg1?.homeId === winnerId
@@ -583,7 +537,7 @@ const advanceKnockoutStages = (knockoutMatches) => {
     if (stageMatches.length > 0 && nextStageMatches.length === 0) {
       const winners = buildWinners(stageMatches);
       if (winners) {
-        currentMatches.push(...createTwoLegRound(winners, nextStage));
+        currentMatches.push(...createKnockoutRound(winners, nextStage, format));
       }
     }
   }
@@ -975,7 +929,7 @@ const useTournamentStore = create((set, get) => ({
           ? { ...match, homeGoals, awayGoals }
           : match
       );
-      const advancedKnockoutMatches = advanceKnockoutStages(knockoutMatches);
+      const advancedKnockoutMatches = advanceKnockoutStages(knockoutMatches, state.settings);
       const nextState = { ...state, groupMatches, knockoutMatches: advancedKnockoutMatches };
       saveTournamentState(nextState);
       return nextState;
@@ -1059,7 +1013,7 @@ const useTournamentStore = create((set, get) => ({
         }),
       }));
 
-      const advancedKnockoutMatches = advanceKnockoutStages(knockoutMatches);
+      const advancedKnockoutMatches = advanceKnockoutStages(knockoutMatches, state.settings);
       const nextState = { ...state, teams, groupMatches, knockoutMatches: advancedKnockoutMatches };
       saveTournamentState(nextState);
       return nextState;
@@ -1321,7 +1275,11 @@ const useTournamentStore = create((set, get) => ({
         return state;
       }
       const seededTeams = standings.map((team, index) => ({ ...team, seed: index + 1 }));
-      const knockoutMatches = createTwoLegRound(seededTeams, getKnockoutStageForSize(seededTeams.length));
+      const knockoutMatches = createKnockoutRound(
+        seededTeams,
+        getKnockoutStageForSize(seededTeams.length),
+        settings.knockoutFormat
+      );
       const nextState = { ...state, knockoutMatches };
       saveTournamentState(nextState);
       return nextState;
