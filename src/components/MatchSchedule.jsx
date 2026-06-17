@@ -52,27 +52,106 @@ const MatchSchedule = ({ readOnly = false }) => {
     recordPlayerGoals(match.id, homeVal, awayVal, homeScorers, awayScorers);
   };
 
-  const updateScorerSlot = (match, isHome, index, playerId) => {
+  const setScorerGoalCount = (match, isHome, playerId, nextCount, goalTotal) => {
     const side = isHome ? 'home' : 'away';
     const key = `${match.id}-${side}`;
-    const current = [...getScorers(match, isHome)];
-    current[index] = playerId;
-    setSelectedScorers((prev) => ({
-      ...prev,
-      [key]: current.filter(Boolean),
-    }));
-  };
-
-  const toggleScorer = (matchId, isHome, playerId) => {
-    const key = `${matchId}-${isHome ? 'home' : 'away'}`;
     setSelectedScorers((prev) => {
-      const current = prev[key] || [];
-      const exists = current.includes(playerId);
+      const current = prev[key] ?? (match.playerScorers?.[side] || []);
+      const otherScorers = current.filter((id) => id !== playerId);
+      const availableGoals = Math.max(0, goalTotal - otherScorers.length);
+      const safeCount = Math.max(0, Math.min(nextCount, availableGoals));
       return {
         ...prev,
-        [key]: exists ? current.filter((id) => id !== playerId) : [...current, playerId],
+        [key]: [...otherScorers, ...Array.from({ length: safeCount }, () => playerId)],
       };
     });
+  };
+
+  const getScorerGoalCount = (match, isHome, playerId, goalTotal) =>
+    getScorers(match, isHome, goalTotal).filter((id) => id === playerId).length;
+
+  const handleSaveScorers = (match) => {
+    const homeVal = match.homeGoals ?? 0;
+    const awayVal = match.awayGoals ?? 0;
+    const homeScorers = getScorers(match, true, homeVal);
+    const awayScorers = getScorers(match, false, awayVal);
+    recordPlayerGoals(match.id, homeVal, awayVal, homeScorers, awayScorers);
+  };
+
+  const renderScorerControls = (match, isHome, goalTotal) => {
+    const teamId = isHome ? match.homeId : match.awayId;
+    const players = getTeamPlayers(teamId);
+    const selected = getSelectedScorers(match, isHome, goalTotal);
+    const assigned = selected.length;
+
+    if (players.length === 0) {
+      return <p className="text-xs text-slate-500">Sin jugadores</p>;
+    }
+
+    if (goalTotal === 0) {
+      return <p className="text-xs text-slate-500">Sin goles registrados</p>;
+    }
+
+    return (
+      <div className="space-y-2">
+        <div className="flex items-center justify-between rounded-xl border border-slate-800 bg-slate-950/70 px-3 py-2 text-xs">
+          <span className={assigned === goalTotal ? 'text-emerald-300' : 'text-amber-300'}>
+            Asignados {assigned}/{goalTotal}
+          </span>
+          <button
+            type="button"
+            onClick={() => setSelectedScorers((prev) => ({ ...prev, [`${match.id}-${isHome ? 'home' : 'away'}`]: [] }))}
+            className="rounded-lg px-2 py-1 font-semibold text-slate-400 transition hover:bg-slate-800 hover:text-white"
+          >
+            Limpiar
+          </button>
+        </div>
+        <div className="space-y-1.5 max-h-64 overflow-y-auto pr-1">
+          {players.map((player) => {
+            const count = getScorerGoalCount(match, isHome, player.id, goalTotal);
+            const canAdd = assigned < goalTotal;
+            return (
+              <div
+                key={player.id}
+                className={`grid grid-cols-[1fr_auto] items-center gap-3 rounded-xl border px-3 py-2 text-xs ${
+                  count > 0
+                    ? 'border-emerald-500/40 bg-emerald-500/10'
+                    : 'border-slate-800 bg-slate-950/50'
+                }`}
+              >
+                <div className="min-w-0">
+                  <div className="truncate font-semibold text-slate-100">{player.name}</div>
+                  <div className="text-[10px] uppercase tracking-[0.16em] text-slate-500">
+                    {count === 1 ? '1 gol' : `${count} goles`}
+                  </div>
+                </div>
+                <div className="inline-flex h-9 items-center overflow-hidden rounded-xl border border-slate-700 bg-slate-900">
+                  <button
+                    type="button"
+                    onClick={() => setScorerGoalCount(match, isHome, player.id, count - 1, goalTotal)}
+                    disabled={count === 0}
+                    className="h-full w-9 text-base font-black text-slate-300 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:text-slate-700"
+                    aria-label={`Quitar gol a ${player.name}`}
+                  >
+                    -
+                  </button>
+                  <span className="min-w-9 px-3 text-center text-sm font-black text-white">{count}</span>
+                  <button
+                    type="button"
+                    onClick={() => setScorerGoalCount(match, isHome, player.id, count + 1, goalTotal)}
+                    disabled={!canAdd}
+                    className="h-full w-9 text-base font-black text-slate-300 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:text-slate-700"
+                    aria-label={`Agregar gol a ${player.name}`}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
   };
 
   const getSelectedScorers = (match, isHome, limit = Infinity) => {
@@ -284,62 +363,30 @@ const MatchSchedule = ({ readOnly = false }) => {
                 {/* Goal Details - Player Selection */}
                 {isCompleted && !readOnly && (
                   <div className="space-y-3 border-t border-slate-700 pt-3">
-                    <div className="text-xs uppercase tracking-[0.2em] text-slate-400">Selecciona jugadores goleadores</div>
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <div className="text-xs uppercase tracking-[0.2em] text-slate-400">Goleadores</div>
+                        <p className="mt-1 text-xs text-slate-500">Usa + y - para asignar los goles a cada jugador.</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleSaveScorers(match)}
+                        className="w-full rounded-xl bg-sky-500 px-3 py-2 text-xs font-black text-slate-950 transition hover:bg-sky-400 sm:w-auto"
+                      >
+                        Guardar goleadores
+                      </button>
+                    </div>
                     <div className="grid gap-3 sm:grid-cols-2">
                       {/* Home team scorers */}
                       <div className="flex flex-col">
                         <label className="mb-2 text-xs font-semibold text-slate-300">{getTeamName(match.homeId)}</label>
-                        <div className="space-y-2 max-h-48 overflow-y-auto">
-                          {getTeamPlayers(match.homeId).length === 0 ? (
-                            <p className="text-xs text-slate-500">Sin jugadores</p>
-                          ) : homeGoals === 0 ? (
-                            <p className="text-xs text-slate-500">Sin goles registrados</p>
-                          ) : (
-                            Array.from({ length: homeGoals }).map((_, index) => (
-                              <label key={`${match.id}-home-goal-${index}`} className="grid gap-1">
-                                <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">Gol {index + 1}</span>
-                                <select
-                                  value={getSelectedScorers(match, true)[index] || ''}
-                                  onChange={(event) => updateScorerSlot(match, true, index, event.target.value)}
-                                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs text-slate-100 outline-none focus:border-sky-500"
-                                >
-                                  <option value="">Sin asignar</option>
-                                  {getTeamPlayers(match.homeId).map((player) => (
-                                    <option key={player.id} value={player.id}>{player.name}</option>
-                                  ))}
-                                </select>
-                              </label>
-                            ))
-                          )}
-                        </div>
+                        {renderScorerControls(match, true, homeGoals)}
                       </div>
 
                       {/* Away team scorers */}
                       <div className="flex flex-col">
                         <label className="mb-2 text-xs font-semibold text-slate-300">{getTeamName(match.awayId)}</label>
-                        <div className="space-y-2 max-h-48 overflow-y-auto">
-                          {getTeamPlayers(match.awayId).length === 0 ? (
-                            <p className="text-xs text-slate-500">Sin jugadores</p>
-                          ) : awayGoals === 0 ? (
-                            <p className="text-xs text-slate-500">Sin goles registrados</p>
-                          ) : (
-                            Array.from({ length: awayGoals }).map((_, index) => (
-                              <label key={`${match.id}-away-goal-${index}`} className="grid gap-1">
-                                <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">Gol {index + 1}</span>
-                                <select
-                                  value={getSelectedScorers(match, false)[index] || ''}
-                                  onChange={(event) => updateScorerSlot(match, false, index, event.target.value)}
-                                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-xs text-slate-100 outline-none focus:border-sky-500"
-                                >
-                                  <option value="">Sin asignar</option>
-                                  {getTeamPlayers(match.awayId).map((player) => (
-                                    <option key={player.id} value={player.id}>{player.name}</option>
-                                  ))}
-                                </select>
-                              </label>
-                            ))
-                          )}
-                        </div>
+                        {renderScorerControls(match, false, awayGoals)}
                       </div>
                     </div>
                     <div className="text-xs text-slate-400">
