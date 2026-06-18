@@ -1100,6 +1100,23 @@ const useTournamentStore = create((set, get) => ({
       saveTournamentState(nextState);
       return nextState;
     }),
+  updateMatchDetails: (matchId, updates) =>
+    set((state) => {
+      const allowedUpdates = {
+        scheduledDate: updates.scheduledDate || '',
+        scheduledTime: updates.scheduledTime || '',
+        venue: updates.venue?.trim() || '',
+      };
+      const groupMatches = state.groupMatches.map((match) =>
+        match.id === matchId ? { ...match, ...allowedUpdates } : match
+      );
+      const knockoutMatches = state.knockoutMatches.map((match) =>
+        match.id === matchId ? { ...match, ...allowedUpdates } : match
+      );
+      const nextState = { ...state, groupMatches, knockoutMatches };
+      saveTournamentState(nextState);
+      return nextState;
+    }),
   recordMatchCards: (matchId, cards = []) =>
     set((state) => {
       const groupMatches = state.groupMatches.map((match) =>
