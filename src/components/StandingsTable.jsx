@@ -28,6 +28,52 @@ const StandingsTable = () => {
     day: 'numeric',
   });
 
+  const getTeamLogo = (teamId) => teams.find((savedTeam) => savedTeam.id === teamId)?.logo;
+
+  const renderMobileStandingRows = (rows, options = {}) => (
+    <div className="space-y-2 sm:hidden">
+      {rows.map((team, index) => {
+        const teamLogo = getTeamLogo(team.id);
+        const isQualified = options.grouped ? index < 2 : index < 8;
+        return (
+          <div
+            key={team.id}
+            className="rounded-2xl border border-slate-800 bg-slate-950/80 px-3 py-3 shadow-inner shadow-slate-950/20"
+          >
+            <div className="flex items-center gap-3">
+              <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-black ${
+                isQualified ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-400'
+              }`}>
+                {index + 1}
+              </span>
+              {teamLogo ? (
+                <img src={teamLogo} alt="" className="h-7 w-10 shrink-0 rounded object-cover ring-1 ring-slate-700" />
+              ) : (
+                <span className="h-7 w-10 shrink-0 rounded bg-slate-800 ring-1 ring-slate-700" />
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-black text-slate-100">{team.name}</p>
+                <p className="mt-0.5 text-[10px] uppercase tracking-[0.12em] text-slate-500">
+                  PJ {team.played} · GF {team.goalsFor} · GC {team.goalsAgainst}
+                </p>
+              </div>
+              <div className="text-right">
+                <span className="inline-flex min-w-10 justify-center rounded-xl bg-sky-500 px-2.5 py-1.5 text-sm font-black text-slate-950">
+                  {team.points}
+                </span>
+                <p className={`mt-1 text-xs font-black ${
+                  team.goalDiff > 0 ? 'text-emerald-400' : team.goalDiff < 0 ? 'text-rose-400' : 'text-slate-500'
+                }`}>
+                  {team.goalDiff > 0 ? `+${team.goalDiff}` : team.goalDiff}
+                </p>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+
   return (
     <div className="rounded-[2rem] border border-slate-800 bg-slate-950 p-6 shadow-2xl shadow-slate-950/20 ring-1 ring-slate-700/60">
 
@@ -365,14 +411,15 @@ const StandingsTable = () => {
       </div>
 
       {isWorldCup && groupedStandings.length > 0 && (
-        <div className="mb-6 grid gap-4 lg:grid-cols-2">
+        <div className="mb-6 grid gap-3 sm:gap-4 lg:grid-cols-2">
           {groupedStandings.map((group) => (
-            <div key={group.id} className="rounded-[1.5rem] border border-slate-800 bg-slate-900/70 p-4">
-              <div className="mb-3 flex items-center justify-between gap-3">
-                <h3 className="text-sm font-black uppercase tracking-[0.22em] text-sky-300">{group.name}</h3>
-                <span className="rounded-full bg-slate-950 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">Top 2 + mejores lugares</span>
+            <div key={group.id} className="rounded-2xl border border-slate-800 bg-slate-900/70 p-3 sm:rounded-[1.5rem] sm:p-4">
+              <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+                <h3 className="text-sm font-black uppercase tracking-[0.18em] text-sky-300 sm:tracking-[0.22em]">{group.name}</h3>
+                <span className="w-fit rounded-full bg-slate-950 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400 sm:text-[10px] sm:tracking-wider">Top 2 + mejores lugares</span>
               </div>
-              <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/80">
+              {renderMobileStandingRows(group.standings, { grouped: true })}
+              <div className="hidden overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/80 sm:block">
                 <table className="static-stats-table w-full text-left text-[10px] text-slate-300 sm:text-xs">
                   <colgroup>
                     <col className="w-[7%]" />
@@ -402,7 +449,7 @@ const StandingsTable = () => {
                   </thead>
                   <tbody>
                     {group.standings.map((team, index) => {
-                      const teamLogo = teams.find((savedTeam) => savedTeam.id === team.id)?.logo;
+                      const teamLogo = getTeamLogo(team.id);
                       return (
                         <tr key={team.id} className="border-b border-slate-800/80 last:border-0">
                           <td className="px-2 py-3 text-center">
@@ -491,7 +538,9 @@ const StandingsTable = () => {
             </p>
           </div>
         ) : (
-          <div className="overflow-hidden rounded-[1.75rem] bg-slate-900 shadow-inner border border-slate-800/80">
+          <>
+          {renderMobileStandingRows(standings)}
+          <div className="hidden overflow-hidden rounded-[1.75rem] bg-slate-900 shadow-inner border border-slate-800/80 sm:block">
             <table className="static-stats-table min-w-full text-left text-[10px] text-slate-300 pt-table sm:text-sm">
               <colgroup>
                 <col className="w-[7%]" />
@@ -539,7 +588,7 @@ const StandingsTable = () => {
                   else if (index === 1) badgeClass = 'pos-silver';
                   else if (index === 2) badgeClass = 'pos-bronze';
 
-                  const teamLogo = teams.find((t) => t.id === team.id)?.logo;
+                  const teamLogo = getTeamLogo(team.id);
 
                   return (
                     <tr key={team.id} className={`${rowScreenClass} ${rowPrintClass} border-b border-slate-800/80`}>
@@ -600,6 +649,7 @@ const StandingsTable = () => {
               </tbody>
             </table>
           </div>
+          </>
         )}
 
         {/* --- Solo en PDF: Leyenda de Clasificación --- */}

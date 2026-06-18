@@ -122,8 +122,13 @@ textarea {
     padding: 1rem !important;
   }
 
+  .mobile-nav-pill {
+    min-height: 40px;
+    box-shadow: none;
+  }
+
   .p-6 {
-    padding: 1rem !important;
+    padding: 0.85rem !important;
   }
 
   .p-8,
