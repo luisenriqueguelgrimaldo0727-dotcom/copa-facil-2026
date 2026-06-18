@@ -173,7 +173,7 @@ const MainPage = () => {
           <div className="absolute top-0 right-0 h-40 w-40 bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute bottom-0 left-1/3 h-32 w-32 bg-violet-600/10 rounded-full blur-3xl pointer-events-none" />
 
-          <div className="grid gap-8 xl:grid-cols-[1.5fr_1fr] xl:items-center">
+          <div className="relative">
             
             <div className="space-y-6">
               {/* Selector de Liga Interactiva */}
@@ -275,49 +275,26 @@ const MainPage = () => {
               </div>
             </div>
 
-            {/* Panel de Controles / Vista Pública */}
-            <div className="relative z-10 rounded-[1.5rem] border border-slate-800 bg-slate-950/70 p-4 shadow-2xl backdrop-blur-sm sm:rounded-[2rem] sm:p-6">
-              <h3 className="text-sm uppercase tracking-[0.25em] text-slate-500 font-black mb-4">Panel de Control</h3>
-              
-              <div className="space-y-4">
-                {/* Switch de modo de vista */}
-                <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-800 bg-slate-900 p-4">
-                  <div>
-                    <p className="text-sm font-bold text-white">Visualización</p>
-                    <p className="text-xs text-slate-400">
-                      {isPublicView ? 'Vista pública (Solo lectura)' : 'Modo edición de tu liga'}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleToggleView}
-                    className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors focus:outline-none ${
-                      isPublicView ? 'bg-sky-500' : 'bg-slate-700'
-                    }`}
-                  >
-                    <span
-                      className={`inline-block h-5 w-5 transform rounded-full bg-slate-950 transition-transform ${
-                        isPublicView ? 'translate-x-6' : 'translate-x-1'
-                      }`}
-                    />
-                  </button>
-                </div>
-
-                {/* Info del organizador y botón de cerrar sesión */}
-                <div className="flex flex-col gap-3 rounded-2xl border border-slate-800/80 bg-slate-900/40 p-4 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="overflow-hidden">
-                    <p className="text-xs text-slate-500 uppercase tracking-wider font-bold">Organizador Activo</p>
-                    <p className="text-sm font-semibold text-slate-200 truncate">{currentUser}</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={logoutUser}
-                    className="w-full rounded-xl bg-slate-800 px-4 py-3 text-xs font-semibold text-slate-300 transition hover:bg-slate-700 hover:text-white sm:w-auto sm:py-2"
-                  >
-                    Cerrar Sesión
-                  </button>
-                </div>
-              </div>
+            {/* Controles compactos siempre disponibles en la esquina */}
+            <div className="fixed right-3 top-3 z-50 flex items-center gap-1.5 rounded-2xl border border-slate-700/80 bg-slate-950/90 p-1.5 shadow-2xl backdrop-blur-xl sm:right-5 sm:top-5">
+              <button
+                type="button"
+                onClick={handleToggleView}
+                title={isPublicView ? 'Volver al modo de edicion' : 'Cambiar a vista publica'}
+                className={`rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-wide transition ${
+                  isPublicView ? 'bg-sky-500 text-slate-950' : 'bg-slate-800 text-slate-200 hover:bg-slate-700'
+                }`}
+              >
+                {isPublicView ? 'Publica' : 'Editar'}
+              </button>
+              <button
+                type="button"
+                onClick={logoutUser}
+                title={`Cerrar sesion de ${currentUser}`}
+                className="rounded-xl bg-slate-800 px-3 py-2 text-[10px] font-black uppercase tracking-wide text-rose-300 transition hover:bg-rose-500/15"
+              >
+                Salir
+              </button>
             </div>
 
           </div>

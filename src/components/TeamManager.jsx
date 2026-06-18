@@ -185,7 +185,7 @@ const TeamManager = () => {
                   <div className="h-10 w-10 rounded-full bg-slate-700" />
                 )}
                 <div>
-                  <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Equipo {team.id.toUpperCase()}</p>
+                  <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Equipo registrado</p>
                   <p className="mt-2 text-lg font-semibold text-white">{team.name}</p>
                 </div>
               </div>
