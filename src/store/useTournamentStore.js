@@ -296,8 +296,8 @@ const saveTournamentState = (state) => {
 
     const persistedState = {
       users: state.users,
-      currentUser: state.currentUser,
-      currentTournamentId: state.currentTournamentId,
+      currentUser: null,
+      currentTournamentId: null,
       tournaments,
     };
 
@@ -336,19 +336,19 @@ const initialTournamentState = getInitialTournamentState(persistedState);
 
 const initialAppState = {
   users: ensureAdminUser(persistedState?.users || []),
-  currentUser: persistedState?.currentUser || null,
-  currentTournamentId: persistedState?.currentTournamentId || null,
+  currentUser: null,
+  currentTournamentId: null,
   tournaments: persistedState?.tournaments || {},
   ...initialTournamentState,
 };
 
 let firebaseUnsubscribe = null;
 
-const hydratePersistedState = (state) => {
+const hydratePersistedState = (state, session = {}) => {
   const safeState = {
     users: ensureAdminUser(state?.users || []),
-    currentUser: state?.currentUser || null,
-    currentTournamentId: state?.currentTournamentId || null,
+    currentUser: session.currentUser || null,
+    currentTournamentId: session.currentTournamentId || null,
     tournaments: state?.tournaments || {},
   };
 
@@ -611,8 +611,8 @@ const calculateStandings = (teams, matches, settings = DEFAULT_SETTINGS) => {
 
 const useTournamentStore = create((set, get) => ({
   users: ensureAdminUser(persistedState?.users || []),
-  currentUser: persistedState?.currentUser || null,
-  currentTournamentId: persistedState?.currentTournamentId || null,
+  currentUser: null,
+  currentTournamentId: null,
   tournaments: persistedState?.tournaments || {},
   ...initialTournamentState,
   cloudStatus: isFirebaseEnabled() ? 'pending' : 'local',
@@ -626,8 +626,16 @@ const useTournamentStore = create((set, get) => ({
     try {
       const cloudState = await loadFirebaseState();
       if (cloudState) {
-        const hydratedState = hydratePersistedState(cloudState);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(cloudState));
+        const session = {
+          currentUser: get().currentUser,
+          currentTournamentId: get().currentTournamentId,
+        };
+        const hydratedState = hydratePersistedState(cloudState, session);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          ...cloudState,
+          currentUser: null,
+          currentTournamentId: null,
+        }));
         set({ ...hydratedState, cloudStatus: 'synced' });
       } else {
         saveTournamentState(get());
@@ -636,8 +644,16 @@ const useTournamentStore = create((set, get) => ({
 
       if (!firebaseUnsubscribe) {
         firebaseUnsubscribe = subscribeFirebaseState((cloudState) => {
-          const hydratedState = hydratePersistedState(cloudState);
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(cloudState));
+          const session = {
+            currentUser: get().currentUser,
+            currentTournamentId: get().currentTournamentId,
+          };
+          const hydratedState = hydratePersistedState(cloudState, session);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            ...cloudState,
+            currentUser: null,
+            currentTournamentId: null,
+          }));
           set({ ...hydratedState, cloudStatus: 'synced' });
         });
       }
