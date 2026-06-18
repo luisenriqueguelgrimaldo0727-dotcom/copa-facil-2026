@@ -63,7 +63,14 @@ const StandingsTable = () => {
             ) : (
               <span className="flex h-5 w-5 items-center justify-center rounded bg-slate-800 text-[9px]">⚽</span>
             )}
-            <span className="min-w-0 whitespace-nowrap text-[clamp(7px,2.15vw,9px)] font-black uppercase tracking-tight text-slate-100">{team.name}</span>
+            <span
+              className="min-w-0 overflow-hidden whitespace-nowrap font-black uppercase leading-none tracking-[-0.03em] text-slate-100"
+              style={{
+                fontSize: team.name.length > 24 ? '7.5px' : team.name.length > 18 ? '8.5px' : '10px',
+              }}
+            >
+              {team.name}
+            </span>
             <span className="text-center text-[9px] font-black text-sky-300">{team.points}</span>
             <span className="text-center text-slate-300">{team.played}</span>
             <span className="text-center text-slate-300">{team.wins}</span>
@@ -420,9 +427,9 @@ const StandingsTable = () => {
         <div className="mb-6 grid gap-5 sm:gap-4 lg:grid-cols-2">
           {groupedStandings.map((group) => (
             <div key={group.id} className="rounded-[1.5rem] border border-slate-800 bg-slate-900/70 p-3 sm:p-4">
-              <div className="mb-4 flex flex-col gap-3 px-1 pt-1 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-                <h3 className="text-lg font-black uppercase tracking-[0.2em] text-sky-300 sm:text-sm sm:tracking-[0.22em]">{group.name}</h3>
-                <span className="w-fit rounded-full bg-slate-950 px-4 py-2 text-[9px] font-bold uppercase tracking-[0.16em] text-slate-400 sm:px-3 sm:py-1 sm:text-[10px] sm:tracking-wider">Top 2 + mejores lugares</span>
+              <div className="mb-4 flex items-center justify-between gap-2 px-1 pt-1">
+                <h3 className="shrink-0 text-base font-black uppercase tracking-[0.18em] text-sky-300 sm:text-sm sm:tracking-[0.22em]">{group.name}</h3>
+                <span className="min-w-0 rounded-full bg-slate-950 px-3 py-1.5 text-[8px] font-bold uppercase tracking-[0.08em] text-slate-400 sm:text-[10px] sm:tracking-wider">Top 2 + mejores lugares</span>
               </div>
               {renderMobileStandingRows(group.standings, { grouped: true })}
               <div className="hidden overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/80 sm:block">
