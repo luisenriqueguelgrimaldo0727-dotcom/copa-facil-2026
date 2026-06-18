@@ -4,9 +4,10 @@ import useTournamentStore from '../store/useTournamentStore';
 const AuthPage = () => {
   const loginUser = useTournamentStore((state) => state.loginUser);
   const savedUsername = localStorage.getItem('copa-facil-remembered-user') || '';
+  const savedPassword = localStorage.getItem('copa-facil-remembered-password') || '';
   const [username, setUsername] = useState(savedUsername);
-  const [password, setPassword] = useState('');
-  const [rememberAccess, setRememberAccess] = useState(Boolean(savedUsername));
+  const [password, setPassword] = useState(savedPassword);
+  const [rememberAccess, setRememberAccess] = useState(Boolean(savedUsername && savedPassword));
   const [message, setMessage] = useState(null);
 
   const handleSubmit = (event) => {
@@ -16,6 +17,7 @@ const AuthPage = () => {
     if (result.success) {
       if (rememberAccess) {
         localStorage.setItem('copa-facil-remembered-user', cleanUsername);
+        localStorage.setItem('copa-facil-remembered-password', password.trim());
         if ('PasswordCredential' in window && navigator.credentials?.store) {
           const credential = new window.PasswordCredential({
             id: cleanUsername,
@@ -26,6 +28,7 @@ const AuthPage = () => {
         }
       } else {
         localStorage.removeItem('copa-facil-remembered-user');
+        localStorage.removeItem('copa-facil-remembered-password');
       }
     }
     setMessage(result.message);
@@ -79,12 +82,19 @@ const AuthPage = () => {
             <input
               type="checkbox"
               checked={rememberAccess}
-              onChange={(event) => setRememberAccess(event.target.checked)}
+              onChange={(event) => {
+                const checked = event.target.checked;
+                setRememberAccess(checked);
+                if (!checked) {
+                  localStorage.removeItem('copa-facil-remembered-user');
+                  localStorage.removeItem('copa-facil-remembered-password');
+                }
+              }}
               className="remember-user-checkbox h-5 w-5 shrink-0 accent-sky-500"
             />
             <span>
               <span className="block text-sm font-semibold text-slate-200">Guardar usuario y contrasena</span>
-              <span className="mt-0.5 block text-xs text-slate-500">Se guardaran con el gestor seguro del navegador.</span>
+              <span className="mt-0.5 block text-xs text-slate-500">Usar solamente en un celular personal.</span>
             </span>
           </label>
 
