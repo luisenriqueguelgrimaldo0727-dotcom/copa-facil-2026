@@ -31,37 +31,40 @@ const StandingsTable = () => {
   const getTeamLogo = (teamId) => teams.find((savedTeam) => savedTeam.id === teamId)?.logo;
 
   const renderMobileStandingRows = (rows, options = {}) => (
-    <div className="space-y-2 sm:hidden">
+    <div className="space-y-3 sm:hidden">
       {rows.map((team, index) => {
         const teamLogo = getTeamLogo(team.id);
         const isQualified = options.grouped ? index < 2 : index < 8;
         return (
           <div
             key={team.id}
-            className="rounded-2xl border border-slate-800 bg-slate-950/80 px-3 py-3 shadow-inner shadow-slate-950/20"
+            className={`relative min-h-[106px] overflow-hidden rounded-[1.4rem] border bg-slate-950/90 px-4 py-4 shadow-lg shadow-slate-950/30 ${
+              index === 0 ? 'border-sky-500/30' : 'border-slate-800'
+            }`}
           >
-            <div className="flex items-center gap-3">
-              <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-black ${
+            {index === 0 && <span className="absolute inset-y-4 left-0 w-1 rounded-r-full bg-sky-400" />}
+            <div className="flex min-h-[72px] items-center gap-3">
+              <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-lg font-black shadow-inner ${
                 isQualified ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-400'
               }`}>
                 {index + 1}
               </span>
               {teamLogo ? (
-                <img src={teamLogo} alt="" className="h-7 w-10 shrink-0 rounded object-cover ring-1 ring-slate-700" />
+                <img src={teamLogo} alt="" className="hd-flag h-10 w-14 shrink-0 rounded-md object-cover ring-1 ring-slate-700" />
               ) : (
-                <span className="h-7 w-10 shrink-0 rounded bg-slate-800 ring-1 ring-slate-700" />
+                <span className="flex h-10 w-14 shrink-0 items-center justify-center rounded-md bg-slate-800 text-lg ring-1 ring-slate-700">⚽</span>
               )}
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-black text-slate-100">{team.name}</p>
-                <p className="mt-0.5 text-[10px] uppercase tracking-[0.12em] text-slate-500">
-                  PJ {team.played} · GF {team.goalsFor} · GC {team.goalsAgainst}
+                <p className="break-words text-base font-black uppercase leading-tight tracking-wide text-white">{team.name}</p>
+                <p className="mt-2 whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-500">
+                  PJ {team.played} <span className="px-1 text-slate-700">·</span> GF {team.goalsFor} <span className="px-1 text-slate-700">·</span> GC {team.goalsAgainst}
                 </p>
               </div>
-              <div className="text-right">
-                <span className="inline-flex min-w-10 justify-center rounded-xl bg-sky-500 px-2.5 py-1.5 text-sm font-black text-slate-950">
+              <div className="w-14 shrink-0 text-center">
+                <span className="inline-flex h-12 w-14 items-center justify-center rounded-2xl bg-sky-500 text-xl font-black text-slate-950 shadow-lg shadow-sky-950/30">
                   {team.points}
                 </span>
-                <p className={`mt-1 text-xs font-black ${
+                <p className={`mt-1.5 text-sm font-black ${
                   team.goalDiff > 0 ? 'text-emerald-400' : team.goalDiff < 0 ? 'text-rose-400' : 'text-slate-500'
                 }`}>
                   {team.goalDiff > 0 ? `+${team.goalDiff}` : team.goalDiff}
@@ -75,7 +78,7 @@ const StandingsTable = () => {
   );
 
   return (
-    <div className="rounded-[2rem] border border-slate-800 bg-slate-950 p-6 shadow-2xl shadow-slate-950/20 ring-1 ring-slate-700/60">
+    <div className="rounded-[1.5rem] border border-slate-800 bg-slate-950 p-3 shadow-2xl shadow-slate-950/20 ring-1 ring-slate-700/60 sm:rounded-[2rem] sm:p-6">
 
       {/*
         ===================================================================
@@ -384,7 +387,7 @@ const StandingsTable = () => {
       {/* ============================================================
           CABECERA DE PANTALLA (se oculta en impresión vía visibility)
           ============================================================ */}
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-6 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-xs uppercase tracking-[0.3em] text-sky-300/80">Estadísticas Oficiales</p>
           <h2 className="mt-2 text-3xl font-extrabold text-white">Tabla de Clasificación</h2>
@@ -393,15 +396,15 @@ const StandingsTable = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="grid grid-cols-[1fr_0.8fr] items-stretch gap-3 sm:flex sm:items-center">
           <button
             type="button"
             onClick={handlePrint}
-            className="inline-flex items-center gap-2.5 rounded-3xl bg-sky-500 hover:bg-sky-400 text-slate-950 px-6 py-3 text-xs font-black uppercase tracking-wider transition shadow-lg shadow-sky-500/15 focus:outline-none"
+            className="inline-flex min-h-[72px] items-center justify-center gap-2 rounded-[1.5rem] bg-sky-500 px-3 py-3 text-center text-xs font-black uppercase tracking-wider text-slate-950 shadow-lg shadow-sky-500/15 transition hover:bg-sky-400 focus:outline-none sm:min-h-0 sm:rounded-3xl sm:px-6"
           >
             🖨️ Exportar PDF / Imprimir
           </button>
-          <div className="rounded-3xl bg-slate-900/90 px-5 py-3 text-right shadow-inner border border-slate-800/80">
+          <div className="flex flex-col justify-center rounded-[1.5rem] border border-slate-800/80 bg-slate-900/90 px-3 py-3 text-center shadow-inner sm:rounded-3xl sm:px-5 sm:text-right">
             <p className="text-[10px] uppercase tracking-[0.3em] text-slate-500 font-bold">Líder General</p>
             <p className="mt-1 text-lg font-black text-sky-400 truncate max-w-[150px]">
               {standings[0]?.name || 'Sin datos'}
@@ -411,12 +414,12 @@ const StandingsTable = () => {
       </div>
 
       {isWorldCup && groupedStandings.length > 0 && (
-        <div className="mb-6 grid gap-3 sm:gap-4 lg:grid-cols-2">
+        <div className="mb-6 grid gap-5 sm:gap-4 lg:grid-cols-2">
           {groupedStandings.map((group) => (
-            <div key={group.id} className="rounded-2xl border border-slate-800 bg-slate-900/70 p-3 sm:rounded-[1.5rem] sm:p-4">
-              <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-                <h3 className="text-sm font-black uppercase tracking-[0.18em] text-sky-300 sm:tracking-[0.22em]">{group.name}</h3>
-                <span className="w-fit rounded-full bg-slate-950 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400 sm:text-[10px] sm:tracking-wider">Top 2 + mejores lugares</span>
+            <div key={group.id} className="rounded-[1.5rem] border border-slate-800 bg-slate-900/70 p-3 sm:p-4">
+              <div className="mb-4 flex flex-col gap-3 px-1 pt-1 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+                <h3 className="text-lg font-black uppercase tracking-[0.2em] text-sky-300 sm:text-sm sm:tracking-[0.22em]">{group.name}</h3>
+                <span className="w-fit rounded-full bg-slate-950 px-4 py-2 text-[9px] font-bold uppercase tracking-[0.16em] text-slate-400 sm:px-3 sm:py-1 sm:text-[10px] sm:tracking-wider">Top 2 + mejores lugares</span>
               </div>
               {renderMobileStandingRows(group.standings, { grouped: true })}
               <div className="hidden overflow-hidden rounded-2xl border border-slate-800 bg-slate-950/80 sm:block">
@@ -488,7 +491,7 @@ const StandingsTable = () => {
         </div>
       )}
 
-      <div className="mb-5 rounded-3xl border border-slate-800 bg-slate-900/60 px-5 py-4 text-sm text-slate-300">
+      <div className="mb-5 rounded-2xl border border-slate-800 bg-slate-900/60 px-4 py-4 text-sm leading-6 text-slate-300 sm:rounded-3xl sm:px-5">
         <span className="font-bold text-sky-300">{formatLabel}:</span>{' '}
         {isWorldCup ? 'clasifican los primeros 2 de cada grupo y se completa la liguilla con los mejores lugares disponibles hasta llegar a 8, 16 o 32 equipos.' : settings.tournamentFormat === 'long' ? 'todos contra todos; el lider general al finalizar es campeon.' : 'tabla general con clasificacion a liguilla.'}
       </div>
