@@ -35,15 +35,29 @@ const StandingsTable = () => {
       {rows.map((team, index) => {
         const teamLogo = getTeamLogo(team.id);
         const isQualified = options.grouped ? index < 2 : index < 8;
+        const mobileStats = [
+          { label: 'PTS', value: team.points, highlight: true },
+          { label: 'PJ', value: team.played },
+          { label: 'G', value: team.wins },
+          { label: 'E', value: team.draws },
+          { label: 'P', value: team.losses },
+          { label: 'GF', value: team.goalsFor },
+          { label: 'GC', value: team.goalsAgainst },
+          {
+            label: 'DG',
+            value: team.goalDiff > 0 ? `+${team.goalDiff}` : team.goalDiff,
+            difference: true,
+          },
+        ];
         return (
           <div
             key={team.id}
-            className={`relative min-h-[106px] overflow-hidden rounded-[1.4rem] border bg-slate-950/90 px-4 py-4 shadow-lg shadow-slate-950/30 ${
+            className={`relative overflow-hidden rounded-[1.4rem] border bg-slate-950/90 p-4 shadow-lg shadow-slate-950/30 ${
               index === 0 ? 'border-sky-500/30' : 'border-slate-800'
             }`}
           >
             {index === 0 && <span className="absolute inset-y-4 left-0 w-1 rounded-r-full bg-sky-400" />}
-            <div className="flex min-h-[72px] items-center gap-3">
+            <div className="flex min-w-0 items-center gap-3">
               <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-lg font-black shadow-inner ${
                 isQualified ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-400'
               }`}>
@@ -56,20 +70,38 @@ const StandingsTable = () => {
               )}
               <div className="min-w-0 flex-1">
                 <p className="break-words text-base font-black uppercase leading-tight tracking-wide text-white">{team.name}</p>
-                <p className="mt-2 whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-500">
-                  PJ {team.played} <span className="px-1 text-slate-700">·</span> GF {team.goalsFor} <span className="px-1 text-slate-700">·</span> GC {team.goalsAgainst}
-                </p>
-              </div>
-              <div className="w-14 shrink-0 text-center">
-                <span className="inline-flex h-12 w-14 items-center justify-center rounded-2xl bg-sky-500 text-xl font-black text-slate-950 shadow-lg shadow-sky-950/30">
-                  {team.points}
-                </span>
-                <p className={`mt-1.5 text-sm font-black ${
-                  team.goalDiff > 0 ? 'text-emerald-400' : team.goalDiff < 0 ? 'text-rose-400' : 'text-slate-500'
+                <span className={`mt-2 inline-flex rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.12em] ${
+                  isQualified ? 'bg-emerald-500/10 text-emerald-400' : 'bg-slate-800 text-slate-500'
                 }`}>
-                  {team.goalDiff > 0 ? `+${team.goalDiff}` : team.goalDiff}
-                </p>
+                  {isQualified ? 'Zona de clasificacion' : 'Fuera de clasificacion'}
+                </span>
               </div>
+            </div>
+
+            <div className="mt-4 grid grid-cols-4 gap-2 border-t border-slate-800 pt-3">
+              {mobileStats.map((stat) => (
+                <div
+                  key={stat.label}
+                  className={`flex min-h-[58px] flex-col items-center justify-center rounded-xl border px-1 py-2 text-center ${
+                    stat.highlight
+                      ? 'border-sky-500/30 bg-sky-500/10'
+                      : 'border-slate-800 bg-slate-900/80'
+                  }`}
+                >
+                  <span className="text-[9px] font-black uppercase tracking-[0.14em] text-slate-500">{stat.label}</span>
+                  <span className={`mt-1 text-base font-black ${
+                    stat.highlight
+                      ? 'text-sky-300'
+                      : stat.difference && team.goalDiff > 0
+                        ? 'text-emerald-400'
+                        : stat.difference && team.goalDiff < 0
+                          ? 'text-rose-400'
+                          : 'text-slate-100'
+                  }`}>
+                    {stat.value}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         );
