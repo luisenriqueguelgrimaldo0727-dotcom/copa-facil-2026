@@ -49,12 +49,13 @@ const TopScorers = () => {
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-800 text-lg ring-1 ring-slate-700">⚽</span>
               )}
 
-              <span className="min-w-0 flex-1 truncate text-sm font-black uppercase tracking-wide text-white sm:text-base">
+              <span className="min-w-0 flex-1 break-words text-sm font-black uppercase leading-tight tracking-wide text-white sm:text-base">
                 {player.name}
               </span>
 
-              <span className="inline-flex shrink-0 items-center gap-1 rounded-xl bg-sky-500 px-3 py-2 text-sm font-black text-slate-950">
-                ⚽ {player.goals || 0}
+              <span className="inline-flex min-w-[54px] shrink-0 flex-col items-center justify-center rounded-xl bg-sky-500 px-2 py-1.5 font-black text-slate-950">
+                <span className="text-base leading-none">{player.goals || 0}</span>
+                <span className="mt-1 text-[8px] uppercase tracking-wider">Goles</span>
               </span>
             </div>
           ))}

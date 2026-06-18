@@ -80,9 +80,9 @@ textarea {
 
 .mobile-standing-grid {
   display: grid;
-  grid-template-columns: 26px 26px minmax(48px, 1fr) repeat(8, minmax(18px, 22px));
+  grid-template-columns: 22px 22px minmax(96px, 1fr) repeat(8, minmax(15px, 17px));
   align-items: center;
-  column-gap: 2px;
+  column-gap: 1px;
 }
 
 @media (max-width: 640px) {
@@ -165,5 +165,9 @@ textarea {
 
   .mobile-tabbar > button {
     min-height: 48px;
+  }
+
+  .remember-user-checkbox {
+    min-height: 1.25rem !important;
   }
 }

@@ -55,16 +55,16 @@ const StandingsTable = () => {
               index === 0 ? 'bg-sky-950/20' : 'bg-slate-950/80'
             }`}
           >
-            <span className={`flex h-6 w-6 items-center justify-center justify-self-center rounded-full text-[10px] font-black ${
+            <span className={`flex h-5 w-5 items-center justify-center justify-self-center rounded-full text-[9px] font-black ${
               isQualified ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-400'
             }`}>{index + 1}</span>
             {teamLogo ? (
-              <img src={teamLogo} alt="" className="hd-flag h-6 w-6 rounded object-cover ring-1 ring-slate-700" />
+              <img src={teamLogo} alt="" className="hd-flag h-5 w-5 rounded object-cover ring-1 ring-slate-700" />
             ) : (
-              <span className="flex h-6 w-6 items-center justify-center rounded bg-slate-800 text-[10px]">⚽</span>
+              <span className="flex h-5 w-5 items-center justify-center rounded bg-slate-800 text-[9px]">⚽</span>
             )}
-            <span className="min-w-0 truncate font-black uppercase text-slate-100">{team.name}</span>
-            <span className="text-center text-[10px] font-black text-sky-300">{team.points}</span>
+            <span className="min-w-0 whitespace-nowrap text-[clamp(7px,2.15vw,9px)] font-black uppercase tracking-tight text-slate-100">{team.name}</span>
+            <span className="text-center text-[9px] font-black text-sky-300">{team.points}</span>
             <span className="text-center text-slate-300">{team.played}</span>
             <span className="text-center text-slate-300">{team.wins}</span>
             <span className="text-center text-slate-300">{team.draws}</span>

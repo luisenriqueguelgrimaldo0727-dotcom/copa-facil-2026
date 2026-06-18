@@ -3,13 +3,23 @@ import useTournamentStore from '../store/useTournamentStore';
 
 const AuthPage = () => {
   const loginUser = useTournamentStore((state) => state.loginUser);
-  const [username, setUsername] = useState('');
+  const savedUsername = localStorage.getItem('copa-facil-remembered-user') || '';
+  const [username, setUsername] = useState(savedUsername);
   const [password, setPassword] = useState('');
+  const [rememberUsername, setRememberUsername] = useState(Boolean(savedUsername));
   const [message, setMessage] = useState(null);
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const result = loginUser(username.trim(), password.trim());
+    const cleanUsername = username.trim();
+    const result = loginUser(cleanUsername, password.trim());
+    if (result.success) {
+      if (rememberUsername) {
+        localStorage.setItem('copa-facil-remembered-user', cleanUsername);
+      } else {
+        localStorage.removeItem('copa-facil-remembered-user');
+      }
+    }
     setMessage(result.message);
   };
 
@@ -28,7 +38,7 @@ const AuthPage = () => {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5" autoComplete="on">
           <label className="block">
             <span className="block text-sm font-semibold text-slate-300">Usuario</span>
             <input
@@ -36,6 +46,7 @@ const AuthPage = () => {
               onChange={(event) => setUsername(event.target.value)}
               className="mt-2 w-full rounded-3xl border border-slate-700 bg-slate-950 px-4 py-3.5 text-sm text-slate-100 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
               type="text"
+              name="username"
               placeholder="Nombre de usuario"
               autoComplete="username"
               required
@@ -49,10 +60,24 @@ const AuthPage = () => {
               onChange={(event) => setPassword(event.target.value)}
               className="mt-2 w-full rounded-3xl border border-slate-700 bg-slate-950 px-4 py-3.5 text-sm text-slate-100 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
               type="password"
+              name="password"
               placeholder="Contrasena"
               autoComplete="current-password"
               required
             />
+          </label>
+
+          <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-800 bg-slate-950/70 px-4 py-3">
+            <input
+              type="checkbox"
+              checked={rememberUsername}
+              onChange={(event) => setRememberUsername(event.target.checked)}
+              className="remember-user-checkbox h-5 w-5 shrink-0 accent-sky-500"
+            />
+            <span>
+              <span className="block text-sm font-semibold text-slate-200">Recordar mi usuario</span>
+              <span className="mt-0.5 block text-xs text-slate-500">Para entrar mas rapido desde este celular.</span>
+            </span>
           </label>
 
           {message && (
