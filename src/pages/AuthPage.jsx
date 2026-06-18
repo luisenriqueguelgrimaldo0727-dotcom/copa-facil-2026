@@ -6,7 +6,7 @@ const AuthPage = () => {
   const savedUsername = localStorage.getItem('copa-facil-remembered-user') || '';
   const [username, setUsername] = useState(savedUsername);
   const [password, setPassword] = useState('');
-  const [rememberUsername, setRememberUsername] = useState(Boolean(savedUsername));
+  const [rememberAccess, setRememberAccess] = useState(Boolean(savedUsername));
   const [message, setMessage] = useState(null);
 
   const handleSubmit = (event) => {
@@ -14,8 +14,16 @@ const AuthPage = () => {
     const cleanUsername = username.trim();
     const result = loginUser(cleanUsername, password.trim());
     if (result.success) {
-      if (rememberUsername) {
+      if (rememberAccess) {
         localStorage.setItem('copa-facil-remembered-user', cleanUsername);
+        if ('PasswordCredential' in window && navigator.credentials?.store) {
+          const credential = new window.PasswordCredential({
+            id: cleanUsername,
+            name: cleanUsername,
+            password: password.trim(),
+          });
+          navigator.credentials.store(credential).catch(() => {});
+        }
       } else {
         localStorage.removeItem('copa-facil-remembered-user');
       }
@@ -70,13 +78,13 @@ const AuthPage = () => {
           <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-800 bg-slate-950/70 px-4 py-3">
             <input
               type="checkbox"
-              checked={rememberUsername}
-              onChange={(event) => setRememberUsername(event.target.checked)}
+              checked={rememberAccess}
+              onChange={(event) => setRememberAccess(event.target.checked)}
               className="remember-user-checkbox h-5 w-5 shrink-0 accent-sky-500"
             />
             <span>
-              <span className="block text-sm font-semibold text-slate-200">Recordar mi usuario</span>
-              <span className="mt-0.5 block text-xs text-slate-500">Para entrar mas rapido desde este celular.</span>
+              <span className="block text-sm font-semibold text-slate-200">Guardar usuario y contrasena</span>
+              <span className="mt-0.5 block text-xs text-slate-500">Se guardaran con el gestor seguro del navegador.</span>
             </span>
           </label>
 

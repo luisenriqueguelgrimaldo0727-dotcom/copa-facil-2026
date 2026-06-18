@@ -169,19 +169,19 @@ const MainPage = () => {
       <div className="mx-auto max-w-7xl">
         
         {/* Cabecera Premium */}
-        <section className="mobile-card relative mb-5 overflow-visible rounded-[1.5rem] border border-slate-800 bg-slate-900/90 p-4 shadow-2xl shadow-slate-950/70 backdrop-blur-md sm:mb-10 sm:overflow-hidden sm:rounded-[2.5rem] sm:p-8">
+        <section className="mobile-card relative mb-3 overflow-visible rounded-[1.25rem] border border-slate-800 bg-slate-900/90 p-3 shadow-xl shadow-slate-950/60 backdrop-blur-md sm:mb-8 sm:overflow-hidden sm:rounded-[2.5rem] sm:p-8">
           <div className="absolute top-0 right-0 h-40 w-40 bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute bottom-0 left-1/3 h-32 w-32 bg-violet-600/10 rounded-full blur-3xl pointer-events-none" />
 
           <div className="relative">
             
-            <div className="space-y-6">
+            <div className="space-y-3 sm:space-y-6">
               {/* Selector de Liga Interactiva */}
               <div className="relative z-30 block text-left sm:inline-block">
                 <button
                   type="button"
                   onClick={() => setShowDropdown(!showDropdown)}
-                  className="inline-flex w-full max-w-full items-center justify-between gap-3 rounded-2xl bg-sky-500/10 px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.16em] text-sky-300 shadow-lg ring-1 ring-sky-500/20 transition hover:bg-sky-500/20 sm:w-auto sm:rounded-full sm:px-5 sm:py-2.5 sm:text-sm sm:tracking-[0.2em]"
+                  className="inline-flex w-full max-w-full items-center justify-between gap-2 rounded-xl bg-sky-500/10 px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-[0.12em] text-sky-300 ring-1 ring-sky-500/20 transition hover:bg-sky-500/20 sm:w-auto sm:rounded-full sm:px-5 sm:py-2.5 sm:text-sm sm:tracking-[0.2em]"
                 >
                   🏆 {activeTournament?.name || 'Cargando Liga...'}
                   <span className="text-xs">▼</span>
@@ -239,9 +239,9 @@ const MainPage = () => {
               </div>
 
               {/* Título e Info Principal */}
-              <div className="space-y-4">
+              <div className="space-y-2 sm:space-y-4">
                 <div className="flex flex-col gap-2">
-                  <h1 className="text-3xl font-black uppercase tracking-tight text-white sm:text-6xl">
+                  <h1 className="text-xl font-black uppercase tracking-tight text-white sm:text-6xl">
                     Copa Fácil
                   </h1>
                   <div className="flex flex-wrap items-center gap-3">
@@ -253,24 +253,24 @@ const MainPage = () => {
                     </span>
                   </div>
                 </div>
-                <p className="max-w-2xl text-sm leading-6 text-slate-300 sm:text-lg sm:leading-8">
+                <p className="hidden max-w-2xl text-sm leading-6 text-slate-300 sm:block sm:text-lg sm:leading-8">
                   Plataforma oficial de la liga. Consulta el rol de juegos, clasificaciones actualizadas, estadísticas de goleo y el fixture de liguilla en tiempo real.
                 </p>
               </div>
 
               {/* Mini Paneles de Estadísticas */}
-              <div className="grid gap-3 grid-cols-3 max-w-lg">
-                <div className="rounded-2xl border border-slate-800 bg-slate-950/95 p-3 text-center shadow-inner sm:rounded-3xl sm:p-4">
+              <div className="grid max-w-lg grid-cols-3 gap-2 sm:gap-3">
+                <div className="rounded-xl border border-slate-800 bg-slate-950/95 p-2 text-center shadow-inner sm:rounded-3xl sm:p-4">
                   <p className="text-[9px] uppercase tracking-[0.14em] text-slate-500 font-bold sm:text-[10px] sm:tracking-[0.2em]">Equipos</p>
-                  <p className="mt-1 text-2xl font-black text-sky-400">{teams.length}</p>
+                  <p className="mt-1 text-lg font-black text-sky-400 sm:text-2xl">{teams.length}</p>
                 </div>
-                <div className="rounded-2xl border border-slate-800 bg-slate-950/95 p-3 text-center shadow-inner sm:rounded-3xl sm:p-4">
+                <div className="rounded-xl border border-slate-800 bg-slate-950/95 p-2 text-center shadow-inner sm:rounded-3xl sm:p-4">
                   <p className="text-[9px] uppercase tracking-[0.14em] text-slate-500 font-bold sm:text-[10px] sm:tracking-[0.2em]">Jornada</p>
-                  <p className="mt-1 text-2xl font-black text-violet-400">{currentRound}</p>
+                  <p className="mt-1 text-lg font-black text-violet-400 sm:text-2xl">{currentRound}</p>
                 </div>
-                <div className="rounded-2xl border border-slate-800 bg-slate-950/95 p-3 text-center shadow-inner sm:rounded-3xl sm:p-4">
+                <div className="rounded-xl border border-slate-800 bg-slate-950/95 p-2 text-center shadow-inner sm:rounded-3xl sm:p-4">
                   <p className="text-[9px] uppercase tracking-[0.14em] text-slate-500 font-bold sm:text-[10px] sm:tracking-[0.2em]">Partidos</p>
-                  <p className="mt-1 text-2xl font-black text-emerald-400">{groupMatches.length}</p>
+                  <p className="mt-1 text-lg font-black text-emerald-400 sm:text-2xl">{groupMatches.length}</p>
                 </div>
               </div>
             </div>

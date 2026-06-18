@@ -18,10 +18,6 @@ const StandingsTable = () => {
     worldCup: 'Mundial por grupos',
   }[settings.tournamentFormat] || 'Formato Liga MX';
 
-  const handlePrint = () => {
-    window.print();
-  };
-
   const today = new Date().toLocaleDateString('es-MX', {
     year: 'numeric',
     month: 'long',
@@ -406,14 +402,7 @@ const StandingsTable = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-[1fr_0.8fr] items-stretch gap-3 sm:flex sm:items-center">
-          <button
-            type="button"
-            onClick={handlePrint}
-            className="inline-flex min-h-[72px] items-center justify-center gap-2 rounded-[1.5rem] bg-sky-500 px-3 py-3 text-center text-xs font-black uppercase tracking-wider text-slate-950 shadow-lg shadow-sky-500/15 transition hover:bg-sky-400 focus:outline-none sm:min-h-0 sm:rounded-3xl sm:px-6"
-          >
-            🖨️ Exportar PDF / Imprimir
-          </button>
+        <div className="flex justify-end">
           <div className="flex flex-col justify-center rounded-[1.5rem] border border-slate-800/80 bg-slate-900/90 px-3 py-3 text-center shadow-inner sm:rounded-3xl sm:px-5 sm:text-right">
             <p className="text-[10px] uppercase tracking-[0.3em] text-slate-500 font-bold">Líder General</p>
             <p className="mt-1 text-lg font-black text-sky-400 truncate max-w-[150px]">
