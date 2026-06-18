@@ -11,6 +11,7 @@ import TransferMarket from '../components/TransferMarket';
 import TeamStats from '../components/TeamStats';
 import SponsorsManager from '../components/SponsorsManager';
 import LeagueSettings from '../components/LeagueSettings';
+import AdminUsersPanel from '../components/AdminUsersPanel';
 
 const MainPage = () => {
   const teams = useTournamentStore((state) => state.teams || []);
@@ -158,6 +159,10 @@ const MainPage = () => {
         return <StandingsTable />;
     }
   };
+
+  if (isAdmin) {
+    return <AdminUsersPanel />;
+  }
 
   return (
     <main className="min-h-screen bg-slate-950 px-3 py-4 text-slate-100 sm:px-6 sm:py-10 lg:px-8 pb-32">
@@ -439,8 +444,8 @@ const MainPage = () => {
         )}
 
         {/* Tabulación de Secciones */}
-        <section className="sticky top-0 z-20 -mx-3 mb-4 border-y border-slate-800 bg-slate-950/95 px-2 py-1.5 shadow-xl shadow-slate-950/40 backdrop-blur-md sm:static sm:mx-0 sm:mb-8 sm:rounded-[2rem] sm:border sm:bg-slate-900/60 sm:p-3 sm:ring-1 sm:ring-slate-800">
-          <div className="mobile-tabbar gap-1.5 px-0.5 py-1 sm:flex sm:flex-wrap sm:gap-2 sm:px-2 sm:py-2">
+        <section className="mb-5 rounded-2xl border border-slate-800 bg-slate-900/70 p-2 shadow-xl shadow-slate-950/40 sm:mb-8 sm:rounded-[2rem] sm:p-3 sm:ring-1 sm:ring-slate-800">
+          <div className="mobile-tabbar grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:px-2 sm:py-2">
             {tabs.map((tab) => {
               const isActive = activeTab === tab.id;
               return (
@@ -448,7 +453,7 @@ const MainPage = () => {
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
-                  className={`mobile-nav-pill flex max-w-[150px] items-center gap-1.5 rounded-full px-3 py-2 text-[11px] font-semibold transition focus:outline-none sm:max-w-none sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm ${
+                  className={`mobile-nav-pill flex w-full min-w-0 items-center gap-2 rounded-xl px-3 py-2.5 text-left text-xs font-semibold transition focus:outline-none sm:w-auto sm:rounded-full sm:px-4 sm:text-sm ${
                     isActive
                       ? 'bg-sky-500 text-slate-950 shadow-lg shadow-sky-500/20'
                       : !tab.public

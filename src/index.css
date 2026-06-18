@@ -149,12 +149,7 @@ textarea {
   }
 
   .mobile-tabbar {
-    display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    padding-bottom: 0.25rem;
+    overflow: visible;
   }
 
   .mobile-tabbar::-webkit-scrollbar {
@@ -162,6 +157,6 @@ textarea {
   }
 
   .mobile-tabbar > button {
-    flex: 0 0 auto;
+    min-height: 48px;
   }
 }

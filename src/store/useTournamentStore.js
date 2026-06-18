@@ -681,7 +681,7 @@ const useTournamentStore = create((set, get) => ({
       [], // sponsors
       settings
     );
-    const users = ensureAdminUser([...state.users, { username, password, fullName: username, role: 'admin' }]);
+    const users = ensureAdminUser([...state.users, { username, password, fullName: username, role: 'user' }]);
     const tournaments = {
       ...state.tournaments,
       [username]: [tournament],
