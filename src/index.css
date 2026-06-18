@@ -78,6 +78,13 @@ textarea {
   display: none;
 }
 
+.mobile-standing-grid {
+  display: grid;
+  grid-template-columns: 26px 26px minmax(48px, 1fr) repeat(8, minmax(18px, 22px));
+  align-items: center;
+  column-gap: 2px;
+}
+
 @media (max-width: 640px) {
   body {
     background: linear-gradient(180deg, #020617 0%, #0f172a 100%);
